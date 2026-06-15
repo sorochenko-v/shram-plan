@@ -782,7 +782,11 @@ struct AddHabitLuxuryView: View {
     @State private var userCustomEmoji = ""
     @State private var selectedTrackingMode: QuitTrackingMode = .financial
     @State private var financialImpact: Double = 6
-    @State private var timeImpact: Double = 2
+    @State private var financialImpactText = "6.00"
+    @State private var selectedCurrency: SupportedCurrency = .usd
+    @State private var selectedTimeUnit: TimeInputUnit = .hours
+    @State private var timeImpactValue: Double = 2
+    @State private var timeImpactText = "2"
 
     let emojis = ["🍏", "💪", "💧", "😴", "📚", "🧘‍♂️", "🚭", "📱", "🍺", "☕️", "💵", "🧠", "🥗", "🏃‍♂️", "🎯", "🚫", "⏰", "🚴‍♂️", "🏋️‍♂️", "🥛"]
     let icons = ["star.fill", "bolt.fill", "heart.fill", "figure.cross.training", "book.fill", "leaf.fill", "drop.fill", "moon.stars.fill", "smoke.fill", "wineglass.fill", "iphone", "pill.fill", "cup.and.saucer.fill", "clock.fill", "shield.fill", "flame.fill", "calendar", "chart.bar.fill", "dollarsign.circle.fill", "brain"]
@@ -835,7 +839,11 @@ struct AddHabitLuxuryView: View {
                         QuitConfigurationPanel(
                             selectedMode: $selectedTrackingMode,
                             financialImpact: $financialImpact,
-                            timeImpact: $timeImpact,
+                            financialImpactText: $financialImpactText,
+                            selectedCurrency: $selectedCurrency,
+                            selectedTimeUnit: $selectedTimeUnit,
+                            timeImpactValue: $timeImpactValue,
+                            timeImpactText: $timeImpactText,
                             language: appLanguage
                         )
                         .transition(.move(edge: .top).combined(with: .opacity))
@@ -936,8 +944,9 @@ struct AddHabitLuxuryView: View {
                 selectedIcon = initialIcon
                 isQuit = isQuitMode
                 selectedTrackingMode = initialTrackingMode
-                financialImpact = initialTrackingMode == .financial ? max(5, initialImpactValue) : 6
-                timeImpact = initialTrackingMode == .time ? max(0.5, initialImpactValue) : 2
+                financialImpact = initialTrackingMode == .financial ? normalizedFinancialImpact(initialImpactValue) : 6
+                financialImpactText = formattedFinancialImpact(financialImpact)
+                configureInitialTimeImpact(initialTrackingMode == .time ? initialImpactValue : 2)
 
                 if emojis.contains(initialIcon) == false && icons.contains(initialIcon) == false && initialIcon != "⭐️" {
                     userCustomEmoji = initialIcon
@@ -953,8 +962,76 @@ struct AddHabitLuxuryView: View {
     private var selectedImpactValue: Double {
         switch selectedTrackingMode {
         case .financial: return financialImpact
-        case .time: return timeImpact
+        case .time:
+            switch selectedTimeUnit {
+            case .minutes: return timeImpactValue / 60
+            case .hours: return timeImpactValue
+            }
         case .pureWillpower: return 0
+        }
+    }
+
+    private func normalizedFinancialImpact(_ value: Double) -> Double {
+        max(0.01, (value * 100).rounded() / 100)
+    }
+
+    private func configureInitialTimeImpact(_ hours: Double) {
+        let minutes = hours * 60
+
+        if minutes <= 60 {
+            selectedTimeUnit = .minutes
+            timeImpactValue = min(60, max(1, minutes.rounded()))
+            timeImpactText = "\(Int(timeImpactValue.rounded()))"
+        } else {
+            selectedTimeUnit = .hours
+            timeImpactValue = min(24, max(0.5, (hours * 10).rounded() / 10))
+            timeImpactText = formattedTimeHours(timeImpactValue)
+        }
+    }
+
+    private func formattedFinancialImpact(_ value: Double) -> String {
+        String(format: "%.2f", normalizedFinancialImpact(value))
+    }
+
+    private func formattedTimeHours(_ value: Double) -> String {
+        value.rounded() == value ? "\(Int(value))" : String(format: "%.1f", value)
+    }
+}
+
+enum SupportedCurrency: String, CaseIterable, Identifiable {
+    case usd = "USD"
+    case eur = "EUR"
+    case uah = "UAH"
+    case gbp = "GBP"
+    case pln = "PLN"
+
+    var id: String { rawValue }
+
+    var symbol: String {
+        switch self {
+        case .usd: return "$"
+        case .eur: return "€"
+        case .uah: return "₴"
+        case .gbp: return "£"
+        case .pln: return "zł"
+        }
+    }
+
+    var pickerTitle: String {
+        "\(rawValue) \(symbol)"
+    }
+}
+
+enum TimeInputUnit: String, CaseIterable, Identifiable {
+    case minutes
+    case hours
+
+    var id: String { rawValue }
+
+    func title(language: String) -> String {
+        switch self {
+        case .minutes: return language == "ua" ? "Хвилини" : "Minutes"
+        case .hours: return language == "ua" ? "Години" : "Hours"
         }
     }
 }
@@ -962,7 +1039,11 @@ struct AddHabitLuxuryView: View {
 struct QuitConfigurationPanel: View {
     @Binding var selectedMode: QuitTrackingMode
     @Binding var financialImpact: Double
-    @Binding var timeImpact: Double
+    @Binding var financialImpactText: String
+    @Binding var selectedCurrency: SupportedCurrency
+    @Binding var selectedTimeUnit: TimeInputUnit
+    @Binding var timeImpactValue: Double
+    @Binding var timeImpactText: String
     let language: String
 
     var body: some View {
@@ -1003,21 +1084,20 @@ struct QuitConfigurationPanel: View {
 
             switch selectedMode {
             case .financial:
-                ImpactSliderCard(
+                FinancialImpactInputCard(
                     title: language == "ua" ? "Щоденні витрати" : "Daily spend",
-                    valueText: "$\(Int(financialImpact))",
-                    range: 5...120,
-                    step: 1,
                     value: $financialImpact,
+                    text: $financialImpactText,
+                    currency: $selectedCurrency,
                     color: .green
                 )
             case .time:
-                ImpactSliderCard(
+                TimeImpactInputCard(
                     title: language == "ua" ? "Втрачений час щодня" : "Daily time drain",
-                    valueText: formattedHours(timeImpact, language: language),
-                    range: 0.5...12,
-                    step: 0.5,
-                    value: $timeImpact,
+                    unit: $selectedTimeUnit,
+                    value: $timeImpactValue,
+                    text: $timeImpactText,
+                    language: language,
                     color: .blue
                 )
             case .pureWillpower:
@@ -1052,32 +1132,264 @@ struct QuitConfigurationPanel: View {
     }
 }
 
-struct ImpactSliderCard: View {
+struct FinancialImpactInputCard: View {
     let title: String
-    let valueText: String
-    let range: ClosedRange<Double>
-    let step: Double
     @Binding var value: Double
+    @Binding var text: String
+    @Binding var currency: SupportedCurrency
     let color: Color
 
+    @FocusState private var isEditing: Bool
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(title)
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 Spacer()
-                Text(valueText)
+                Text("\(currency.symbol)\(formatted(value))")
                     .font(.system(size: 18, weight: .black, design: .rounded))
                     .foregroundColor(color)
             }
 
-            Slider(value: $value, in: range, step: step)
+            HStack(spacing: 10) {
+                HStack(spacing: 6) {
+                    Text(currency.symbol)
+                        .font(.system(size: 15, weight: .black, design: .rounded))
+                        .foregroundColor(color)
+                    TextField("0.50", text: $text)
+                        .keyboardType(.decimalPad)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .textFieldStyle(.plain)
+                        .focused($isEditing)
+                }
+                .padding(.horizontal, 12)
+                .frame(height: 42)
+                .background(Color.primary.opacity(0.035))
+                .cornerRadius(13)
+
+                Picker("", selection: $currency) {
+                    ForEach(SupportedCurrency.allCases) { currency in
+                        Text(currency.pickerTitle).tag(currency)
+                    }
+                }
+                .pickerStyle(.menu)
+                .font(.system(size: 12, weight: .black, design: .rounded))
+                .frame(height: 42)
+                .padding(.horizontal, 10)
+                .background(Color.primary.opacity(0.035))
+                .cornerRadius(13)
+            }
+
+            Slider(
+                value: Binding(
+                    get: { min(value, 500) },
+                    set: { newValue in
+                        value = normalized(newValue)
+                        text = formatted(value)
+                    }
+                ),
+                in: 0.01...500,
+                step: 0.01
+            )
+            .tint(color)
+        }
+        .padding(14)
+        .background(color.opacity(0.06))
+        .cornerRadius(16)
+        .onChange(of: text) { _, newValue in
+            syncValue(from: newValue)
+        }
+        .onChange(of: isEditing) { _, editing in
+            if !editing { text = formatted(value) }
+        }
+        .onChange(of: value) { _, newValue in
+            if !isEditing { text = formatted(newValue) }
+        }
+    }
+
+    private func syncValue(from rawText: String) {
+        let normalized = rawText.replacingOccurrences(of: ",", with: ".")
+        guard let parsed = Double(normalized) else { return }
+        value = self.normalized(parsed)
+    }
+
+    private func normalized(_ value: Double) -> Double {
+        max(0.01, (value * 100).rounded() / 100)
+    }
+
+    private func formatted(_ value: Double) -> String {
+        String(format: "%.2f", normalized(value))
+    }
+}
+
+struct TimeImpactInputCard: View {
+    let title: String
+    @Binding var unit: TimeInputUnit
+    @Binding var value: Double
+    @Binding var text: String
+    let language: String
+    let color: Color
+
+    @FocusState private var isEditing: Bool
+    @State private var isSyncing = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(title)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                Spacer()
+                Text(displayText)
+                    .font(.system(size: 18, weight: .black, design: .rounded))
+                    .foregroundColor(color)
+            }
+
+            Picker("", selection: $unit) {
+                ForEach(TimeInputUnit.allCases) { unit in
+                    Text(unit.title(language: language)).tag(unit)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            HStack(spacing: 8) {
+                TextField(unit == .minutes ? "45" : "1.5", text: $text)
+                    .keyboardType(unit == .minutes ? .numberPad : .decimalPad)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .textFieldStyle(.plain)
+                    .focused($isEditing)
+                Text(unit == .minutes ? (language == "ua" ? "хв" : "min") : (language == "ua" ? "год" : "h"))
+                    .font(.system(size: 12, weight: .black, design: .rounded))
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 12)
+            .frame(height: 42)
+            .background(Color.primary.opacity(0.035))
+            .cornerRadius(13)
+
+            Slider(
+                value: Binding(
+                    get: { value },
+                    set: { newValue in
+                        value = clamped(newValue, for: unit)
+                        text = formattedInput(value, for: unit)
+                    }
+                ),
+                in: sliderRange,
+                step: unit == .minutes ? 1 : 0.5
+            )
                 .tint(color)
         }
         .padding(14)
         .background(color.opacity(0.06))
         .cornerRadius(16)
+        .onChange(of: text) { _, newValue in
+            guard !isSyncing else { return }
+            syncValue(from: newValue)
+        }
+        .onChange(of: isEditing) { _, editing in
+            if !editing { setText(formattedInput(value, for: unit)) }
+        }
+        .onChange(of: value) { _, newValue in
+            if !isEditing { setText(formattedInput(newValue, for: unit)) }
+        }
+        .onChange(of: unit) { oldUnit, newUnit in
+            value = converted(value, from: oldUnit, to: newUnit)
+            setText(formattedInput(value, for: newUnit))
+        }
+    }
+
+    private func syncValue(from rawText: String) {
+        let normalized = rawText.replacingOccurrences(of: ",", with: ".")
+
+        if unit == .minutes {
+            let digits = normalized.filter(\.isNumber)
+            if digits != normalized {
+                setText(digits)
+                return
+            }
+            guard let parsed = Double(digits) else { return }
+
+            if parsed > 60 {
+                unit = .hours
+                value = clamped(parsed / 60, for: .hours)
+                setText(formattedInput(value, for: .hours))
+            } else {
+                value = clamped(parsed, for: .minutes)
+            }
+            return
+        }
+
+        guard let parsed = Double(normalized) else { return }
+        value = clamped(parsed, for: .hours)
+    }
+
+    private var sliderRange: ClosedRange<Double> {
+        unit == .minutes ? 1...60 : 0.5...24
+    }
+
+    private var displayText: String {
+        switch unit {
+        case .minutes:
+            return "\(Int(value.rounded())) m"
+        case .hours:
+            return formattedHours(value)
+        }
+    }
+
+    private func clamped(_ value: Double, for unit: TimeInputUnit) -> Double {
+        switch unit {
+        case .minutes:
+            return min(60, max(1, value.rounded()))
+        case .hours:
+            return min(24, max(0.5, (value * 10).rounded() / 10))
+        }
+    }
+
+    private func converted(_ value: Double, from oldUnit: TimeInputUnit, to newUnit: TimeInputUnit) -> Double {
+        guard oldUnit != newUnit else { return clamped(value, for: newUnit) }
+
+        switch (oldUnit, newUnit) {
+        case (.minutes, .hours):
+            return clamped(value / 60, for: .hours)
+        case (.hours, .minutes):
+            return clamped(value * 60, for: .minutes)
+        default:
+            return clamped(value, for: newUnit)
+        }
+    }
+
+    private func formattedInput(_ value: Double, for unit: TimeInputUnit) -> String {
+        switch unit {
+        case .minutes:
+            return "\(Int(value.rounded()))"
+        case .hours:
+            return value.rounded() == value ? "\(Int(value))" : String(format: "%.1f", value)
+        }
+    }
+
+    private func formattedHours(_ value: Double) -> String {
+        let wholeHours = Int(value)
+        let minutes = Int(((value - Double(wholeHours)) * 60).rounded())
+
+        if minutes == 0 {
+            return "\(wholeHours) h"
+        }
+
+        if wholeHours == 0 {
+            return "\(minutes) m"
+        }
+
+        return "\(wholeHours) h \(minutes) m"
+    }
+
+    private func setText(_ newText: String) {
+        guard text != newText else { return }
+        isSyncing = true
+        text = newText
+        isSyncing = false
     }
 }
 
