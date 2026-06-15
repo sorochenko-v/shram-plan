@@ -26,11 +26,11 @@ enum QuitTrackingMode: String, CaseIterable, Equatable {
     func title(language: String) -> String {
         switch self {
         case .financial:
-            return language == "ua" ? "Фінанси" : "Financial"
+            return "Financial"
         case .time:
-            return language == "ua" ? "Час" : "Time"
+            return "Time"
         case .pureWillpower:
-            return language == "ua" ? "Воля" : "Willpower"
+            return "Willpower"
         }
     }
 
@@ -120,8 +120,6 @@ struct AdvancedQuitItem: Identifiable, Equatable {
 }
 
 struct HabitsView: View {
-    @AppStorage("appLanguage") var appLanguage: String = "en"
-
     @Binding var showAddModal: Bool
 
     @State private var activeHabits: [HabitItem] = []
@@ -147,13 +145,9 @@ struct HabitsView: View {
     @State private var habitToEdit: HabitItem? = nil
     @State private var quitToEdit: AdvancedQuitItem? = nil
 
-    private func t(_ english: String, _ ukrainian: String) -> String {
-        appLanguage == "ua" ? ukrainian : english
-    }
-
     var body: some View {
         List {
-            Text(t("Build the good. Break what keeps taking from you.", "Будуйте корисне. Ламайте те, що забирає у вас сили."))
+            Text("Build the good. Break what keeps taking from you.")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.secondary)
                 .lineSpacing(3)
@@ -173,10 +167,10 @@ struct HabitsView: View {
                                 .foregroundColor(.blue.opacity(0.6))
                         }
 
-                        Text(t("Your Dashboard is Clean", "Ваша панель чиста"))
+                        Text("Your Dashboard is Clean")
                             .font(.system(size: 20, weight: .bold, design: .rounded))
 
-                        Text(t("Start healing your life. Pick a curated recommendation below or craft your own setup.", "Почніть відновлювати своє життя. Оберіть готову рекомендацію нижче або створіть власний план."))
+                        Text("Start healing your life. Pick a curated recommendation below or craft your own setup.")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
@@ -186,9 +180,9 @@ struct HabitsView: View {
                     .padding(.vertical, 24)
 
                     VStack(alignment: .leading, spacing: 14) {
-                        SectionHeader(title: t("SUGGESTED ROUTINES", "РЕКОМЕНДОВАНІ РУТИНИ"))
+                        SectionHeader(title: "SUGGESTED ROUTINES")
                         ForEach(suggestedHabits) { habit in
-                            SuggestionButton(title: localizedPlanName(habit.name, language: appLanguage), icon: habit.icon, color: .blue) {
+                            SuggestionButton(title: localizedPlanName(habit.name), icon: habit.icon, color: .blue) {
                                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                     activeHabits.append(habit)
                                 }
@@ -197,9 +191,9 @@ struct HabitsView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 14) {
-                        SectionHeader(title: t("SUGGESTED QUIT CHALLENGES", "РЕКОМЕНДОВАНІ ВІДМОВИ"))
+                        SectionHeader(title: "SUGGESTED QUIT CHALLENGES")
                         ForEach(suggestedQuits) { quit in
-                            AdvancedQuitSuggestionButton(quit: quit, language: appLanguage) {
+                            AdvancedQuitSuggestionButton(quit: quit) {
                                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                     activeQuits.append(freshChallenge(from: quit))
                                 }
@@ -212,9 +206,9 @@ struct HabitsView: View {
                 .listRowInsets(EdgeInsets(top: 10, leading: 24, bottom: 10, trailing: 24))
             } else {
                 if !activeHabits.isEmpty {
-                    Section(header: SectionHeader(title: t("DAILY ROUTINES", "ЩОДЕННІ РУТИНИ"), subtitle: t("Small wins that compound", "Малі перемоги, що накопичуються")).padding(.leading, 4)) {
+                    Section(header: SectionHeader(title: "DAILY ROUTINES", subtitle: "Small wins that compound").padding(.leading, 4)) {
                         ForEach(activeHabits) { habit in
-                            HabitCard(habit: habit, language: appLanguage, onToggle: {
+                            HabitCard(habit: habit, onToggle: {
                                 if let idx = activeHabits.firstIndex(where: { $0.id == habit.id }) {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                                         let today = currentWeekdayIndex
@@ -230,8 +224,8 @@ struct HabitsView: View {
                                 }
                             })
                             .contextMenu {
-                                Button { habitToEdit = habit } label: { Label(t("Edit Habit", "Редагувати звичку"), systemImage: "pencil") }
-                                Button(role: .destructive) { withAnimation { activeHabits.removeAll { $0.id == habit.id } } } label: { Label(t("Delete", "Видалити"), systemImage: "trash") }
+                                Button { habitToEdit = habit } label: { Label("Edit Habit", systemImage: "pencil") }
+                                Button(role: .destructive) { withAnimation { activeHabits.removeAll { $0.id == habit.id } } } label: { Label("Delete", systemImage: "trash") }
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
@@ -249,14 +243,14 @@ struct HabitsView: View {
                 }
 
                 if !activeQuits.isEmpty {
-                    Section(header: SectionHeader(title: t("QUIT CHALLENGES", "ВІДМОВИ"), subtitle: t("Healing old scars with visible progress", "Загоєння старих шрамів через видимий прогрес")).padding(.leading, 4)) {
+                    Section(header: SectionHeader(title: "QUIT CHALLENGES", subtitle: "Healing old scars with visible progress").padding(.leading, 4)) {
                         ForEach(activeQuits) { quit in
-                            AdvancedQuitCard(quit: quit, language: appLanguage) { date in
+                            AdvancedQuitCard(quit: quit) { date in
                                 updateChallenge(quit, on: date)
                             }
                             .contextMenu {
-                                Button { quitToEdit = quit } label: { Label(t("Edit Challenge", "Редагувати виклик"), systemImage: "pencil") }
-                                Button(role: .destructive) { withAnimation { activeQuits.removeAll { $0.id == quit.id } } } label: { Label(t("Delete", "Видалити"), systemImage: "trash") }
+                                Button { quitToEdit = quit } label: { Label("Edit Challenge", systemImage: "pencil") }
+                                Button(role: .destructive) { withAnimation { activeQuits.removeAll { $0.id == quit.id } } } label: { Label("Delete", systemImage: "trash") }
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
@@ -278,7 +272,7 @@ struct HabitsView: View {
         .scrollContentBackground(.hidden)
         .background(Color.primary.opacity(0.015))
         .sheet(isPresented: $showAddModal) {
-            AddHabitLuxuryView(initialName: "", initialIcon: "⭐️", isQuitMode: false, titleLabel: t("Create ShramPlan", "Створити ShramPlan")) { name, icon, isQuit, trackingMode, dailyImpact in
+            AddHabitLuxuryView(initialName: "", initialIcon: "⭐️", isQuitMode: false, titleLabel: "Create ShramPlan") { name, icon, isQuit, trackingMode, dailyImpact in
                 withAnimation(.spring()) {
                     if isQuit {
                         activeQuits.append(
@@ -296,7 +290,7 @@ struct HabitsView: View {
             }
         }
         .sheet(item: $habitToEdit) { habit in
-            AddHabitLuxuryView(initialName: localizedPlanName(habit.name, language: appLanguage), initialIcon: habit.icon, isQuitMode: false, titleLabel: t("Edit Routine", "Редагувати рутину")) { name, icon, _, _, _ in
+            AddHabitLuxuryView(initialName: localizedPlanName(habit.name), initialIcon: habit.icon, isQuitMode: false, titleLabel: "Edit Routine") { name, icon, _, _, _ in
                 if let idx = activeHabits.firstIndex(where: { $0.id == habit.id }) {
                     activeHabits[idx].name = name
                     activeHabits[idx].icon = icon
@@ -305,10 +299,10 @@ struct HabitsView: View {
         }
         .sheet(item: $quitToEdit) { quit in
             AddHabitLuxuryView(
-                initialName: localizedPlanName(quit.name, language: appLanguage),
+                initialName: localizedPlanName(quit.name),
                 initialIcon: quit.icon,
                 isQuitMode: true,
-                titleLabel: t("Edit Challenge", "Редагувати виклик"),
+                titleLabel: "Edit Challenge",
                 initialTrackingMode: quit.trackingMode,
                 initialImpactValue: quit.dailyImpactValue
             ) { name, icon, _, trackingMode, dailyImpact in
@@ -365,11 +359,10 @@ struct HabitsView: View {
 
 struct HabitCard: View {
     let habit: HabitItem
-    let language: String
     var onToggle: () -> Void
 
     private var daysLetters: [String] {
-        language == "ua" ? ["Пн", "Вв", "Ср", "Чт", "Пт", "Сб", "Нд"] : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+        ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
     }
 
     var body: some View {
@@ -383,11 +376,11 @@ struct HabitCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(localizedPlanName(habit.name, language: language))
+                    Text(localizedPlanName(habit.name))
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
 
-                    Text(language == "ua" ? "🔥 стрік: \(habit.streak) днів" : "🔥 \(habit.streak) days streak")
+                    Text("🔥 \(habit.streak) days streak")
                         .font(.system(size: 12, weight: .bold, design: .rounded))
                         .foregroundColor(.gray)
                 }
@@ -411,7 +404,7 @@ struct HabitCard: View {
                     .scaleEffect(habit.isCompleted ? 1.05 : 1.0)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(language == "ua" ? "Позначити виконання" : "Toggle completion")
+                .accessibilityLabel("Toggle completion")
             }
 
             HStack(spacing: 8) {
@@ -445,7 +438,6 @@ struct HabitCard: View {
 
 struct AdvancedQuitCard: View {
     let quit: AdvancedQuitItem
-    let language: String
     var onToggleDay: (Date) -> Void
 
     private var accent: Color { quit.trackingMode.accent }
@@ -465,7 +457,7 @@ struct AdvancedQuitCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(localizedPlanName(quit.name, language: language))
+                    Text(localizedPlanName(quit.name))
                         .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
 
@@ -476,7 +468,7 @@ struct AdvancedQuitCard: View {
 
                 Spacer()
 
-                HealingScoreBadge(score: quit.healingScore, language: language)
+                HealingScoreBadge(score: quit.healingScore)
             }
 
             HStack(spacing: 8) {
@@ -485,7 +477,7 @@ struct AdvancedQuitCard: View {
             }
 
             VStack(alignment: .leading, spacing: 10) {
-                Text(language == "ua" ? "ОСТАННІ 5 ДНІВ" : "LAST 5 DAYS")
+                Text("LAST 5 DAYS")
                     .font(.system(size: 9, weight: .black, design: .rounded))
                     .foregroundColor(.gray.opacity(0.7))
                     .tracking(1)
@@ -495,8 +487,7 @@ struct AdvancedQuitCard: View {
                         ChallengeDayCell(
                             date: date,
                             status: quit.status(for: date),
-                            isFuture: calendar.startOfDay(for: date) > calendar.startOfDay(for: Date()),
-                            language: language
+                            isFuture: calendar.startOfDay(for: date) > calendar.startOfDay(for: Date())
                         ) {
                             onToggleDay(date)
                         }
@@ -520,17 +511,17 @@ struct AdvancedQuitCard: View {
     }
 
     private var cleanDaysText: String {
-        language == "ua" ? "⏳ Чисто: \(quit.cleanDays) дн" : "⏳ \(quit.cleanDays) Days Clean"
+        "⏳ \(quit.cleanDays) Days Clean"
     }
 
     private var impactText: String {
         switch quit.trackingMode {
         case .financial:
-            return language == "ua" ? "💰 Заощаджено: $\(Int(quit.accumulatedImpact))" : "💰 Saved: $\(Int(quit.accumulatedImpact))"
+            return "💰 Saved: $\(Int(quit.accumulatedImpact))"
         case .time:
-            return language == "ua" ? "⏱️ Повернено: \(formattedImpact) год" : "⏱️ Recovered: \(formattedImpact)h"
+            return "⏱️ Recovered: \(formattedImpact)h"
         case .pureWillpower:
-            return language == "ua" ? "🧠 Ясність: активна" : "🧠 Clarity: active"
+            return "🧠 Clarity: active"
         }
     }
 
@@ -543,19 +534,18 @@ struct AdvancedQuitCard: View {
     }
 
     private var milestoneTitle: String {
-        milestoneFor(days: quit.consecutiveCleanDays(), language: language)
+        milestoneFor(days: quit.consecutiveCleanDays())
     }
 }
 
 struct HealingScoreBadge: View {
     let score: Double
-    let language: String
 
     var body: some View {
         VStack(spacing: 2) {
             Text("🧬")
                 .font(.system(size: 14))
-            Text(language == "ua" ? "Зцілено" : "Healed")
+            Text("Healed")
                 .font(.system(size: 8, weight: .black, design: .rounded))
                 .foregroundColor(.secondary)
             Text("\(Int(score.rounded()))%")
@@ -593,7 +583,6 @@ struct ChallengeDayCell: View {
     let date: Date
     let status: ChallengeStatus
     let isFuture: Bool
-    let language: String
     var action: () -> Void
 
     private var calendar: Calendar { Calendar.current }
@@ -619,18 +608,17 @@ struct ChallengeDayCell: View {
         .buttonStyle(.plain)
         .disabled(isFuture)
         .opacity(isFuture ? 0.45 : 1)
-        .accessibilityLabel(accessibilityLabel)
+        .accessibilityLabel("Toggle day status")
     }
 
     private var dayLabel: String {
         if calendar.isDateInToday(date) {
-            return language == "ua" ? "Сь" : "Today"
+            return "Today"
         }
 
         let weekday = calendar.component(.weekday, from: date)
         let english = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
-        let ukrainian = ["Нд", "Пн", "Вв", "Ср", "Чт", "Пт", "Сб"]
-        return language == "ua" ? ukrainian[weekday - 1] : english[weekday - 1]
+        return english[weekday - 1]
     }
 
     private var symbolName: String {
@@ -656,15 +644,10 @@ struct ChallengeDayCell: View {
         case .unmarked: return Color.primary.opacity(0.035)
         }
     }
-
-    private var accessibilityLabel: String {
-        language == "ua" ? "Змінити статус дня" : "Toggle day status"
-    }
 }
 
 struct AdvancedQuitSuggestionButton: View {
     let quit: AdvancedQuitItem
-    let language: String
     var action: () -> Void
 
     var body: some View {
@@ -678,7 +661,7 @@ struct AdvancedQuitSuggestionButton: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(localizedPlanName(quit.name, language: language))
+                    Text(localizedPlanName(quit.name))
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
 
@@ -710,11 +693,11 @@ struct AdvancedQuitSuggestionButton: View {
     private var subtitle: String {
         switch quit.trackingMode {
         case .financial:
-            return language == "ua" ? "$\(Int(quit.dailyImpactValue)) на день" : "$\(Int(quit.dailyImpactValue)) per day"
+            return "$\(Int(quit.dailyImpactValue)) per day"
         case .time:
-            return language == "ua" ? "\(formattedValue) год на день" : "\(formattedValue)h per day"
+            return "\(formattedValue)h per day"
         case .pureWillpower:
-            return language == "ua" ? "Без вартості, тільки сила волі" : "No cost, pure discipline"
+            return "No cost, pure discipline"
         }
     }
 
@@ -765,7 +748,6 @@ struct SuggestionButton: View {
 
 struct AddHabitLuxuryView: View {
     @Environment(\.dismiss) var dismiss
-    @AppStorage("appLanguage") var appLanguage: String = "en"
 
     var initialName: String
     var initialIcon: String
@@ -793,21 +775,17 @@ struct AddHabitLuxuryView: View {
 
     let gridColumns = [GridItem(.adaptive(minimum: 50, maximum: 60), spacing: 12)]
 
-    private func t(_ english: String, _ ukrainian: String) -> String {
-        appLanguage == "ua" ? ukrainian : english
-    }
-
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 VStack(spacing: 20) {
                     HStack(spacing: 0) {
-                        Button(t("Good Habit", "Корисна звичка")) { withAnimation { isQuit = false } }
+                        Button("Good Habit") { withAnimation { isQuit = false } }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
                             .background(isQuit ? Color.clear : Color.blue.opacity(0.1))
                             .foregroundColor(isQuit ? .gray : .blue)
-                        Button(t("Quit Challenge", "Відмова")) { withAnimation { isQuit = true } }
+                        Button("Quit Challenge") { withAnimation { isQuit = true } }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
                             .background(isQuit ? Color.red.opacity(0.1) : Color.clear)
@@ -825,11 +803,11 @@ struct AddHabitLuxuryView: View {
                             HabitIconView(icon: selectedIcon, color: primaryAccent, size: 32)
                         }
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(t("PLAN NAME", "НАЗВА ПЛАНУ"))
+                            Text("PLAN NAME")
                                 .font(.system(size: 9, weight: .black))
                                 .foregroundColor(.gray)
                                 .tracking(1)
-                            TextField(t("What is the plan?", "Що це за план?"), text: $name)
+                            TextField("What is the plan?", text: $name)
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                                 .textFieldStyle(.plain)
                         }
@@ -843,17 +821,16 @@ struct AddHabitLuxuryView: View {
                             selectedCurrency: $selectedCurrency,
                             selectedTimeUnit: $selectedTimeUnit,
                             timeImpactValue: $timeImpactValue,
-                            timeImpactText: $timeImpactText,
-                            language: appLanguage
+                            timeImpactText: $timeImpactText
                         )
                         .transition(.move(edge: .top).combined(with: .opacity))
                     }
 
                     Divider()
 
-                    Picker(t("Icon Style", "Стиль іконки"), selection: $iconCategorySelection) {
-                        Text(t("Emoji", "Емодзі")).tag(0)
-                        Text(t("Icons", "Іконки")).tag(1)
+                    Picker("Icon Style", selection: $iconCategorySelection) {
+                        Text("Emoji").tag(0)
+                        Text("Icons").tag(1)
                     }
                     .pickerStyle(.segmented)
                 }
@@ -863,13 +840,13 @@ struct AddHabitLuxuryView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         if iconCategorySelection == 0 {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(t("CUSTOM EMOJI FROM KEYBOARD", "ВЛАСНИЙ ЕМОДЗІ З КЛАВІАТУРИ"))
+                                Text("CUSTOM EMOJI FROM KEYBOARD")
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundColor(.gray)
                                     .padding(.leading, 4)
 
                                 HStack {
-                                    TextField(t("Paste any emoji here...", "Вставте будь-який емодзі сюди..."), text: $userCustomEmoji)
+                                    TextField("Paste any emoji here...", text: $userCustomEmoji)
                                         .font(.system(size: 15, weight: .semibold))
                                         .textFieldStyle(.plain)
                                         .onChange(of: userCustomEmoji) { _, newValue in
@@ -920,7 +897,7 @@ struct AddHabitLuxuryView: View {
                     onSave(name, selectedIcon, isQuit, selectedTrackingMode, selectedImpactValue)
                     dismiss()
                 }) {
-                    Text(t("Save to Dashboard", "Зберегти на панель"))
+                    Text("Save to Dashboard")
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -936,7 +913,7 @@ struct AddHabitLuxuryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(t("Close", "Закрити")) { dismiss() }
+                    Button("Close") { dismiss() }
                 }
             }
             .onAppear {
@@ -1030,8 +1007,8 @@ enum TimeInputUnit: String, CaseIterable, Identifiable {
 
     func title(language: String) -> String {
         switch self {
-        case .minutes: return language == "ua" ? "Хвилини" : "Minutes"
-        case .hours: return language == "ua" ? "Години" : "Hours"
+        case .minutes: return "Minutes"
+        case .hours: return "Hours"
         }
     }
 }
@@ -1044,11 +1021,10 @@ struct QuitConfigurationPanel: View {
     @Binding var selectedTimeUnit: TimeInputUnit
     @Binding var timeImpactValue: Double
     @Binding var timeImpactText: String
-    let language: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(language == "ua" ? "РЕЖИМ ВІДНОВЛЕННЯ" : "RECOVERY MODE")
+            Text("RECOVERY MODE")
                 .font(.system(size: 9, weight: .black, design: .rounded))
                 .foregroundColor(.gray)
                 .tracking(1)
@@ -1063,7 +1039,7 @@ struct QuitConfigurationPanel: View {
                         VStack(spacing: 6) {
                             Image(systemName: mode.icon)
                                 .font(.system(size: 15, weight: .bold))
-                            Text(mode.title(language: language))
+                            Text(mode.title(language: "en"))
                                 .font(.system(size: 10, weight: .bold, design: .rounded))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
@@ -1085,7 +1061,7 @@ struct QuitConfigurationPanel: View {
             switch selectedMode {
             case .financial:
                 FinancialImpactInputCard(
-                    title: language == "ua" ? "Щоденні витрати" : "Daily spend",
+                    title: "Daily spend",
                     value: $financialImpact,
                     text: $financialImpactText,
                     currency: $selectedCurrency,
@@ -1093,11 +1069,10 @@ struct QuitConfigurationPanel: View {
                 )
             case .time:
                 TimeImpactInputCard(
-                    title: language == "ua" ? "Втрачений час щодня" : "Daily time drain",
+                    title: "Daily time drain",
                     unit: $selectedTimeUnit,
                     value: $timeImpactValue,
                     text: $timeImpactText,
-                    language: language,
                     color: .blue
                 )
             case .pureWillpower:
@@ -1109,9 +1084,9 @@ struct QuitConfigurationPanel: View {
                             .foregroundColor(.purple)
                     }
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(language == "ua" ? "Статус сили волі" : "Willpower Status")
+                        Text("Willpower Status")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
-                        Text(language == "ua" ? "Без грошей і таймерів. Тільки ясність та контроль." : "No money, no timers. Just clarity and control.")
+                        Text("No money, no timers. Just clarity and control.")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.secondary)
                     }
@@ -1229,7 +1204,6 @@ struct TimeImpactInputCard: View {
     @Binding var unit: TimeInputUnit
     @Binding var value: Double
     @Binding var text: String
-    let language: String
     let color: Color
 
     @FocusState private var isEditing: Bool
@@ -1249,7 +1223,7 @@ struct TimeImpactInputCard: View {
 
             Picker("", selection: $unit) {
                 ForEach(TimeInputUnit.allCases) { unit in
-                    Text(unit.title(language: language)).tag(unit)
+                    Text(unit.title(language: "en")).tag(unit)
                 }
             }
             .pickerStyle(.segmented)
@@ -1260,7 +1234,7 @@ struct TimeImpactInputCard: View {
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                     .textFieldStyle(.plain)
                     .focused($isEditing)
-                Text(unit == .minutes ? (language == "ua" ? "хв" : "min") : (language == "ua" ? "год" : "h"))
+                Text(unit == .minutes ? "min" : "h")
                     .font(.system(size: 12, weight: .black, design: .rounded))
                     .foregroundColor(.secondary)
             }
@@ -1458,26 +1432,14 @@ struct SectionHeader: View {
     }
 }
 
-private func localizedPlanName(_ name: String, language: String) -> String {
-    guard language == "ua" else {
-        switch name {
-        case "Тренування в залі": return "Gym Workout"
-        case "Здоровий сон": return "Healthy Sleep"
-        case "Пити воду": return "Hydrate"
-        case "Кинути палити": return "Quit Smoking"
-        case "Менше TikTok": return "No TikTok Scrolling"
-        case "Без алкоголю": return "No Alcohol"
-        default: return name
-        }
-    }
-
+private func localizedPlanName(_ name: String) -> String {
     switch name {
-    case "Gym Workout": return "Тренування в залі"
-    case "Healthy Sleep": return "Здоровий сон"
-    case "Hydrate": return "Пити воду"
-    case "Quit Smoking": return "Кинути палити"
-    case "No TikTok Scrolling": return "Менше TikTok"
-    case "No Alcohol": return "Без алкоголю"
+    case "Тренування в залі": return "Gym Workout"
+    case "Здоровий сон": return "Healthy Sleep"
+    case "Пити воду": return "Hydrate"
+    case "Кинути палити": return "Quit Smoking"
+    case "Менше TikTok": return "No TikTok Scrolling"
+    case "Без алкоголю": return "No Alcohol"
     default: return name
     }
 }
@@ -1494,25 +1456,25 @@ private func healingScore(for challenge: AdvancedQuitItem) -> Double {
     return min(100, max(0, score))
 }
 
-private func milestoneFor(days: Int, language: String) -> String {
+private func milestoneFor(days: Int) -> String {
     if days >= 30 {
-        return language == "ua" ? "Повністю зцілений Shram" : "Fully Healed Shram"
+        return "Fully Healed Shram"
     } else if days >= 14 {
-        return language == "ua" ? "Тканина відновлюється" : "Tissue Regenerating"
+        return "Tissue Regenerating"
     } else if days >= 7 {
-        return language == "ua" ? "Свербіж зник" : "Craving Fading"
+        return "Craving Fading"
     } else if days >= 3 {
-        return language == "ua" ? "Рана закрита" : "Wound Sealed"
+        return "Wound Sealed"
     } else if days >= 1 {
-        return language == "ua" ? "Перший чистий день" : "First Clean Day"
+        return "First Clean Day"
     } else {
-        return language == "ua" ? "Позначте день, щоб почати" : "Mark a day to begin"
+        return "Mark a day to begin"
     }
 }
 
-private func formattedHours(_ value: Double, language: String) -> String {
+private func formattedHours(_ value: Double) -> String {
     if value.rounded() == value {
-        return language == "ua" ? "\(Int(value)) год" : "\(Int(value))h"
+        return "\(Int(value))h"
     }
-    return language == "ua" ? String(format: "%.1f год", value) : String(format: "%.1fh", value)
+    return String(format: "%.1fh", value)
 }
