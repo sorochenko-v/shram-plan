@@ -23,7 +23,7 @@ enum QuitTrackingMode: String, CaseIterable, Equatable {
     case time
     case pureWillpower
 
-    func title(language: String) -> String {
+    func title() -> String {
         switch self {
         case .financial:
             return "Financial"
@@ -182,7 +182,7 @@ struct HabitsView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         SectionHeader(title: "SUGGESTED ROUTINES")
                         ForEach(suggestedHabits) { habit in
-                            SuggestionButton(title: localizedPlanName(habit.name), icon: habit.icon, color: .blue) {
+                            SuggestionButton(title: habit.name, icon: habit.icon, color: .blue) {
                                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                     activeHabits.append(habit)
                                 }
@@ -290,7 +290,7 @@ struct HabitsView: View {
             }
         }
         .sheet(item: $habitToEdit) { habit in
-            AddHabitLuxuryView(initialName: localizedPlanName(habit.name), initialIcon: habit.icon, isQuitMode: false, titleLabel: "Edit Routine") { name, icon, _, _, _ in
+            AddHabitLuxuryView(initialName: habit.name, initialIcon: habit.icon, isQuitMode: false, titleLabel: "Edit Routine") { name, icon, _, _, _ in
                 if let idx = activeHabits.firstIndex(where: { $0.id == habit.id }) {
                     activeHabits[idx].name = name
                     activeHabits[idx].icon = icon
@@ -299,7 +299,7 @@ struct HabitsView: View {
         }
         .sheet(item: $quitToEdit) { quit in
             AddHabitLuxuryView(
-                initialName: localizedPlanName(quit.name),
+                initialName: quit.name,
                 initialIcon: quit.icon,
                 isQuitMode: true,
                 titleLabel: "Edit Challenge",
@@ -376,7 +376,7 @@ struct HabitCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(localizedPlanName(habit.name))
+                    Text(habit.name)
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
 
@@ -457,7 +457,7 @@ struct AdvancedQuitCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(localizedPlanName(quit.name))
+                    Text(quit.name)
                         .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
 
@@ -661,7 +661,7 @@ struct AdvancedQuitSuggestionButton: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(localizedPlanName(quit.name))
+                    Text(quit.name)
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
 
@@ -1005,7 +1005,7 @@ enum TimeInputUnit: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    func title(language: String) -> String {
+    func title() -> String {
         switch self {
         case .minutes: return "Minutes"
         case .hours: return "Hours"
@@ -1039,7 +1039,7 @@ struct QuitConfigurationPanel: View {
                         VStack(spacing: 6) {
                             Image(systemName: mode.icon)
                                 .font(.system(size: 15, weight: .bold))
-                            Text(mode.title(language: "en"))
+                            Text(mode.title())
                                 .font(.system(size: 10, weight: .bold, design: .rounded))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
@@ -1223,7 +1223,7 @@ struct TimeImpactInputCard: View {
 
             Picker("", selection: $unit) {
                 ForEach(TimeInputUnit.allCases) { unit in
-                    Text(unit.title(language: "en")).tag(unit)
+                    Text(unit.title()).tag(unit)
                 }
             }
             .pickerStyle(.segmented)
@@ -1429,18 +1429,6 @@ struct SectionHeader: View {
                     .textCase(nil)
             }
         }
-    }
-}
-
-private func localizedPlanName(_ name: String) -> String {
-    switch name {
-    case "Тренування в залі": return "Gym Workout"
-    case "Здоровий сон": return "Healthy Sleep"
-    case "Пити воду": return "Hydrate"
-    case "Кинути палити": return "Quit Smoking"
-    case "Менше TikTok": return "No TikTok Scrolling"
-    case "Без алкоголю": return "No Alcohol"
-    default: return name
     }
 }
 
