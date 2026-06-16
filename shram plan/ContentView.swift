@@ -545,7 +545,7 @@ struct PlanCard: View {
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(isSelected ? Color.blue : Color.blue : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
             )
         }
         .buttonStyle(.plain)
