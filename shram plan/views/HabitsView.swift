@@ -120,7 +120,7 @@ struct AdvancedQuitItem: Identifiable, Equatable {
 }
 
 struct HabitsView: View {
-    @Binding var showAddModal: Bool
+    @State private var showAddModal = false
 
     @State private var activeHabits: [HabitItem] = []
     @State private var activeQuits: [AdvancedQuitItem] = []
@@ -147,13 +147,20 @@ struct HabitsView: View {
 
     var body: some View {
         List {
-            Text("Build the good. Break what keeps taking from you.")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.secondary)
-                .lineSpacing(3)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 12, trailing: 24))
+            // Custom large header inside List
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Your Journey")
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                Text("Build the good. Break what keeps taking from you.")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .lineSpacing(3)
+            }
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 16, leading: 24, bottom: 12, trailing: 24))
 
             if activeHabits.isEmpty && activeQuits.isEmpty {
                 VStack(spacing: 32) {
@@ -169,15 +176,24 @@ struct HabitsView: View {
 
                         Text("Your Dashboard is Clean")
                             .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
 
                         Text("Start healing your life. Pick a curated recommendation below or craft your own setup.")
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, 32)
+                            .padding(.horizontal, 24)
                             .lineSpacing(4)
                     }
-                    .padding(.vertical, 24)
+                    .padding(.vertical, 32)
+                    .frame(maxWidth: .infinity)
+                    .background(Color(uiColor: .secondarySystemBackground).opacity(0.5))
+                    .cornerRadius(20)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.primary.opacity(0.04), lineWidth: 1)
+                    )
+                    .padding(.vertical, 16)
 
                     VStack(alignment: .leading, spacing: 14) {
                         SectionHeader(title: "SUGGESTED ROUTINES")
@@ -201,12 +217,18 @@ struct HabitsView: View {
                         }
                     }
                 }
-                .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 10, leading: 24, bottom: 10, trailing: 24))
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 0, leading: 24, bottom: 32, trailing: 24))
             } else {
                 if !activeHabits.isEmpty {
-                    Section(header: SectionHeader(title: "DAILY ROUTINES", subtitle: "Small wins that compound").padding(.leading, 4)) {
+                    Section(header: SectionHeader(title: "DAILY ROUTINES", subtitle: "Small wins that compound")
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 6)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                    ) {
                         ForEach(activeHabits) { habit in
                             HabitCard(habit: habit, onToggle: {
                                 if let idx = activeHabits.firstIndex(where: { $0.id == habit.id }) {
@@ -229,21 +251,37 @@ struct HabitsView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
-                                    withAnimation { activeHabits.removeAll { $0.id == habit.id } }
-                                } label: { Image(systemName: "trash") }
+                                    withAnimation {
+                                        activeHabits.removeAll { $0.id == habit.id }
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .tint(.red)
 
-                                Button { habitToEdit = habit } label: { Image(systemName: "pencil") }
-                                    .tint(.orange)
+                                Button {
+                                    habitToEdit = habit
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                }
+                                .tint(.blue)
                             }
                         }
-                        .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 6, leading: 24, bottom: 6, trailing: 24))
                     }
                 }
 
                 if !activeQuits.isEmpty {
-                    Section(header: SectionHeader(title: "QUIT CHALLENGES", subtitle: "Healing old scars with visible progress").padding(.leading, 4)) {
+                    Section(header: SectionHeader(title: "QUIT CHALLENGES", subtitle: "Healing old scars with progress")
+                        .padding(.horizontal, 24)
+                        .padding(.top, 10)
+                        .padding(.bottom, 6)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                    ) {
                         ForEach(activeQuits) { quit in
                             AdvancedQuitCard(quit: quit) { date in
                                 updateChallenge(quit, on: date)
@@ -254,23 +292,50 @@ struct HabitsView: View {
                             }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
-                                    withAnimation { activeQuits.removeAll { $0.id == quit.id } }
-                                } label: { Image(systemName: "trash") }
+                                    withAnimation {
+                                        activeQuits.removeAll { $0.id == quit.id }
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .tint(.red)
 
-                                Button { quitToEdit = quit } label: { Image(systemName: "pencil") }
-                                    .tint(.orange)
+                                Button {
+                                    quitToEdit = quit
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                }
+                                .tint(.blue)
                             }
                         }
-                        .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 6, leading: 24, bottom: 6, trailing: 24))
                     }
                 }
             }
         }
         .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .background(Color.primary.opacity(0.015))
+        .background(
+            ZStack {
+                Color(uiColor: .systemBackground)
+                Color.primary.opacity(0.015)
+            }
+        )
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showAddModal = true
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.blue)
+                }
+                .buttonStyle(.plain)
+            }
+        }
         .sheet(isPresented: $showAddModal) {
             AddHabitLuxuryView(initialName: "", initialIcon: "⭐️", isQuitMode: false, titleLabel: "Create ShramPlan") { name, icon, isQuit, trackingMode, dailyImpact in
                 withAnimation(.spring()) {
@@ -773,70 +838,144 @@ struct AddHabitLuxuryView: View {
     let emojis = ["🍏", "💪", "💧", "😴", "📚", "🧘‍♂️", "🚭", "📱", "🍺", "☕️", "💵", "🧠", "🥗", "🏃‍♂️", "🎯", "🚫", "⏰", "🚴‍♂️", "🏋️‍♂️", "🥛"]
     let icons = ["star.fill", "bolt.fill", "heart.fill", "figure.cross.training", "book.fill", "leaf.fill", "drop.fill", "moon.stars.fill", "smoke.fill", "wineglass.fill", "iphone", "pill.fill", "cup.and.saucer.fill", "clock.fill", "shield.fill", "flame.fill", "calendar", "chart.bar.fill", "dollarsign.circle.fill", "brain"]
 
-    let gridColumns = [GridItem(.adaptive(minimum: 50, maximum: 60), spacing: 12)]
+    let gridColumns = [GridItem(.adaptive(minimum: 60, maximum: 70), spacing: 12)]
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                VStack(spacing: 20) {
-                    HStack(spacing: 0) {
-                        Button("Good Habit") { withAnimation { isQuit = false } }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(isQuit ? Color.clear : Color.blue.opacity(0.1))
-                            .foregroundColor(isQuit ? .gray : .blue)
-                        Button("Quit Challenge") { withAnimation { isQuit = true } }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(isQuit ? Color.red.opacity(0.1) : Color.clear)
-                            .foregroundColor(isQuit ? .red : .gray)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 24) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(titleLabel == "Create ShramPlan" ? "Create Plan" : titleLabel)
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                        
+                        Text(isQuit ? "Set up your recovery tracking parameters below." : "Define your new daily routine target.")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.secondary)
+                            .lineSpacing(3)
                     }
-                    .font(.system(size: 14, weight: .bold))
-                    .background(Color.primary.opacity(0.03))
-                    .cornerRadius(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
 
-                    HStack(spacing: 16) {
-                        ZStack {
-                            Circle()
-                                .fill(primaryAccent.opacity(0.08))
-                                .frame(width: 64, height: 64)
-                            HabitIconView(icon: selectedIcon, color: primaryAccent, size: 32)
+                    VStack(spacing: 20) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("STARTING:")
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .tracking(1.5)
+                                .padding(.leading, 4)
+                            
+                            HStack(spacing: 12) {
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                                        isQuit = false
+                                    }
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "sun.max.fill")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundColor(!isQuit ? .blue : .secondary)
+                                        
+                                        Text("Building a Good Habit")
+                                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                            .foregroundColor(!isQuit ? .primary : .secondary)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 48)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(!isQuit ? Color.blue.opacity(0.08) : Color.primary.opacity(0.02))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(!isQuit ? Color.blue.opacity(0.2) : Color.primary.opacity(0.04), lineWidth: 1)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                                        isQuit = true
+                                    }
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "bandage.fill")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundColor(isQuit ? .green : .secondary)
+                                        
+                                        Text("Breaking a Bad Habit")
+                                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                            .foregroundColor(isQuit ? .primary : .secondary)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 48)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(isQuit ? Color.green.opacity(0.08) : Color.primary.opacity(0.02))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(isQuit ? Color.green.opacity(0.2) : Color.primary.opacity(0.04), lineWidth: 1)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("PLAN NAME")
-                                .font(.system(size: 9, weight: .black))
-                                .foregroundColor(.gray)
-                                .tracking(1)
-                            TextField("What is the plan?", text: $name)
+
+                        HStack(spacing: 16) {
+                            ZStack {
+                                Circle()
+                                    .fill(primaryAccent.opacity(0.08))
+                                    .frame(width: 64, height: 64)
+                                HabitIconView(icon: selectedIcon, color: primaryAccent, size: 32)
+                            }
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("PLAN NAME")
+                                    .font(.system(size: 9, weight: .black))
+                                    .foregroundColor(.gray)
+                                    .tracking(1)
+                                TextField(
+                                    "",
+                                    text: $name,
+                                    prompt: Text("What is the plan?")
+                                        .foregroundColor(.secondary)
+                                )
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                                 .textFieldStyle(.plain)
+                            }
                         }
+
+                        if isQuit {
+                            QuitConfigurationPanel(
+                                selectedMode: $selectedTrackingMode,
+                                financialImpact: $financialImpact,
+                                financialImpactText: $financialImpactText,
+                                selectedCurrency: $selectedCurrency,
+                                selectedTimeUnit: $selectedTimeUnit,
+                                timeImpactValue: $timeImpactValue,
+                                timeImpactText: $timeImpactText
+                            )
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+
+                        Divider()
+
+                        Picker("Icon Style", selection: $iconCategorySelection) {
+                            Text("Emoji").tag(0)
+                            Text("Icons").tag(1)
+                        }
+                        .pickerStyle(.segmented)
                     }
+                    .padding(24)
+                    .background(Color(.secondarySystemBackground).opacity(0.4))
+                    .cornerRadius(20)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.primary.opacity(0.04), lineWidth: 1)
+                    )
+                    .padding(.horizontal, 24)
 
-                    if isQuit {
-                        QuitConfigurationPanel(
-                            selectedMode: $selectedTrackingMode,
-                            financialImpact: $financialImpact,
-                            financialImpactText: $financialImpactText,
-                            selectedCurrency: $selectedCurrency,
-                            selectedTimeUnit: $selectedTimeUnit,
-                            timeImpactValue: $timeImpactValue,
-                            timeImpactText: $timeImpactText
-                        )
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                    }
-
-                    Divider()
-
-                    Picker("Icon Style", selection: $iconCategorySelection) {
-                        Text("Emoji").tag(0)
-                        Text("Icons").tag(1)
-                    }
-                    .pickerStyle(.segmented)
-                }
-                .padding(24)
-
-                ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
                         if iconCategorySelection == 0 {
                             VStack(alignment: .leading, spacing: 8) {
@@ -846,15 +985,20 @@ struct AddHabitLuxuryView: View {
                                     .padding(.leading, 4)
 
                                 HStack {
-                                    TextField("Paste any emoji here...", text: $userCustomEmoji)
-                                        .font(.system(size: 15, weight: .semibold))
-                                        .textFieldStyle(.plain)
-                                        .onChange(of: userCustomEmoji) { _, newValue in
-                                            if let lastChar = newValue.last {
-                                                userCustomEmoji = String(lastChar)
-                                                selectedIcon = userCustomEmoji
-                                            }
+                                    TextField(
+                                        "",
+                                        text: $userCustomEmoji,
+                                        prompt: Text("Paste any emoji here...")
+                                            .foregroundColor(.secondary)
+                                    )
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .textFieldStyle(.plain)
+                                    .onChange(of: userCustomEmoji) { _, newValue in
+                                        if let lastChar = newValue.last {
+                                            userCustomEmoji = String(lastChar)
+                                            selectedIcon = userCustomEmoji
                                         }
+                                    }
                                     Spacer()
                                     Text("😀").foregroundColor(.gray.opacity(0.4))
                                 }
@@ -867,7 +1011,7 @@ struct AddHabitLuxuryView: View {
                             LazyVGrid(columns: gridColumns, spacing: 12) {
                                 ForEach(emojis, id: \.self) { emoji in
                                     IconChoiceCell(isSelected: selectedIcon == emoji, color: primaryAccent) {
-                                        Text(emoji).font(.system(size: 24))
+                                        Text(emoji).font(.system(size: 28))
                                     } action: {
                                         selectedIcon = emoji
                                         userCustomEmoji = ""
@@ -879,7 +1023,7 @@ struct AddHabitLuxuryView: View {
                                 ForEach(icons, id: \.self) { icon in
                                     IconChoiceCell(isSelected: selectedIcon == icon, color: primaryAccent) {
                                         Image(systemName: icon)
-                                            .font(.system(size: 20))
+                                            .font(.system(size: 24))
                                             .foregroundColor(selectedIcon == icon ? primaryAccent : .gray)
                                     } action: {
                                         selectedIcon = icon
@@ -889,27 +1033,33 @@ struct AddHabitLuxuryView: View {
                             }
                         }
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 4)
-                }
+                    .padding(.horizontal, 24)
 
-                Button(action: {
-                    onSave(name, selectedIcon, isQuit, selectedTrackingMode, selectedImpactValue)
-                    dismiss()
-                }) {
-                    Text("Save to Dashboard")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(primaryAccent)
-                        .cornerRadius(16)
-                        .shadow(color: primaryAccent.opacity(0.2), radius: 10, y: 5)
+                    Button(action: {
+                        onSave(name, selectedIcon, isQuit, selectedTrackingMode, selectedImpactValue)
+                        dismiss()
+                    }) {
+                        Text("Save to Dashboard")
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 54)
+                            .background(primaryAccent)
+                            .cornerRadius(16)
+                            .shadow(color: primaryAccent.opacity(0.2), radius: 10, y: 5)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 32)
+                    .disabled(name.isEmpty || selectedIcon.isEmpty)
                 }
-                .padding(24)
-                .disabled(name.isEmpty || selectedIcon.isEmpty)
             }
-            .navigationTitle(titleLabel)
+            .background(
+                ZStack {
+                    Color(uiColor: .systemBackground)
+                    Color.primary.opacity(0.015)
+                }
+            )
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -1023,40 +1173,44 @@ struct QuitConfigurationPanel: View {
     @Binding var timeImpactText: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 18) {
             Text("RECOVERY MODE")
-                .font(.system(size: 9, weight: .black, design: .rounded))
-                .foregroundColor(.gray)
-                .tracking(1)
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundColor(.secondary)
+                .tracking(1.5)
+                .padding(.leading, 4)
 
-            HStack(spacing: 8) {
+            HStack(spacing: 12) {
                 ForEach(QuitTrackingMode.allCases, id: \.self) { mode in
                     Button {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.78)) {
                             selectedMode = mode
                         }
                     } label: {
-                        VStack(spacing: 6) {
+                        VStack(spacing: 8) {
                             Image(systemName: mode.icon)
-                                .font(.system(size: 15, weight: .bold))
+                                .font(.system(size: 18, weight: .medium))
                             Text(mode.title())
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
                                 .lineLimit(1)
-                                .minimumScaleFactor(0.75)
+                                .minimumScaleFactor(0.85)
                         }
-                        .foregroundColor(selectedMode == mode ? mode.accent : .gray)
+                        .foregroundColor(selectedMode == mode ? mode.accent : .secondary)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 58)
-                        .background(selectedMode == mode ? mode.accent.opacity(0.11) : Color.primary.opacity(0.025))
-                        .cornerRadius(14)
+                        .padding(.vertical, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(selectedMode == mode ? mode.accent.opacity(0.08) : Color.primary.opacity(0.02))
+                        )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(selectedMode == mode ? mode.accent.opacity(0.35) : Color.primary.opacity(0.04), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(selectedMode == mode ? mode.accent.opacity(0.2) : Color.primary.opacity(0.04), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)
                 }
             }
+            .padding(.bottom, 6)
 
             switch selectedMode {
             case .financial:
@@ -1092,18 +1246,10 @@ struct QuitConfigurationPanel: View {
                     }
                     Spacer()
                 }
-                .padding(14)
-                .background(Color.purple.opacity(0.06))
-                .cornerRadius(16)
+                .padding(.vertical, 12)
             }
         }
-        .padding(14)
-        .background(Color.primary.opacity(0.025))
-        .cornerRadius(18)
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.primary.opacity(0.05), lineWidth: 1)
-        )
+        .padding(.vertical, 20)
     }
 }
 
@@ -1170,9 +1316,7 @@ struct FinancialImpactInputCard: View {
             )
             .tint(color)
         }
-        .padding(14)
-        .background(color.opacity(0.06))
-        .cornerRadius(16)
+        .padding(.vertical, 8)
         .onChange(of: text) { _, newValue in
             syncValue(from: newValue)
         }
@@ -1256,9 +1400,7 @@ struct TimeImpactInputCard: View {
             )
                 .tint(color)
         }
-        .padding(14)
-        .background(color.opacity(0.06))
-        .cornerRadius(16)
+        .padding(.vertical, 8)
         .onChange(of: text) { _, newValue in
             guard !isSyncing else { return }
             syncValue(from: newValue)
@@ -1376,13 +1518,13 @@ struct IconChoiceCell<Content: View>: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 16)
                     .fill(isSelected ? color.opacity(0.15) : Color.primary.opacity(0.03))
-                    .frame(height: 52)
+                    .frame(height: 60)
                 content
             }
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 16)
                     .stroke(isSelected ? color : Color.clear, lineWidth: 2)
             )
         }
