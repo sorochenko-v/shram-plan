@@ -12,7 +12,7 @@ struct SubscriptionPaywallView: View {
                 .ignoresSafeArea()
             
             LinearGradient(
-                colors: [Color.blue.opacity(0.03), Color(red: 0.68, green: 0.58, blue: 0.40).opacity(0.04), Color.clear],
+                colors: [Color.scarlet.opacity(0.03), Color(red: 0.68, green: 0.58, blue: 0.40).opacity(0.04), Color.clear],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -70,9 +70,9 @@ struct SubscriptionPaywallView: View {
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 48)
-                                .background(Color.blue)
+                                .background(Color.scarlet)
                                 .cornerRadius(12)
-                                .shadow(color: Color.blue.opacity(0.15), radius: 8, x: 0, y: 4)
+                                .shadow(color: Color.scarlet.opacity(0.15), radius: 8, x: 0, y: 4)
                         }
                         .buttonStyle(.plain)
 
@@ -144,12 +144,12 @@ struct NewPlanCard: View {
                 // Radio indicator
                 ZStack {
                     Circle()
-                        .stroke(isSelected ? Color.blue : Color.primary.opacity(0.12), lineWidth: 1.5)
+                        .stroke(isSelected ? Color.scarlet : Color.primary.opacity(0.12), lineWidth: 1.5)
                         .frame(width: 20, height: 20)
                     
                     if isSelected {
                         Circle()
-                            .fill(Color.blue)
+                            .fill(Color.scarlet)
                             .frame(width: 10, height: 10)
                     }
                 }
@@ -178,7 +178,7 @@ struct NewPlanCard: View {
             .cornerRadius(16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(isSelected ? Color.blue.opacity(0.25) : Color.primary.opacity(0.04), lineWidth: 1)
+                    .stroke(isSelected ? Color.scarlet.opacity(0.25) : Color.primary.opacity(0.04), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

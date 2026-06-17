@@ -5,289 +5,30 @@ import UIKit
 #endif
 
 struct FinanceView: View {
-    @State private var savedLogs: [WillpowerLog] = []
-    @State private var selectedImpulse: ImpulsePreset?
-    @State private var showLogSheet = false
-
-    private var totalSaved: Double {
-        savedLogs.reduce(0) { $0 + $1.amount }
-    }
-
-    private var disciplinePoints: [DisciplinePoint] {
-        let calendar = Calendar.current
-        let start = calendar.startOfDay(for: Date())
-        let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: Date()) ?? Date()
-        var runningTotal = 0.0
-        var points = [DisciplinePoint(date: start, value: 0)]
-
-        for log in savedLogs.sorted(by: { $0.date < $1.date }) {
-            runningTotal += log.amount
-            points.append(DisciplinePoint(date: log.date, value: runningTotal))
-        }
-
-        points.append(DisciplinePoint(date: end, value: runningTotal))
-        return points
-    }
-
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            LazyVStack(alignment: .leading, spacing: 20) {
-                disciplineWealthCard
-                quickWillpowerLog
-                leaksControl
-                willpowerHistory
+        VStack {
+            Spacer()
+
+            VStack(spacing: 16) {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .font(.system(size: 38, weight: .ultraLight))
+                    .foregroundColor(.secondary.opacity(0.25))
+
+                Text("Finance Tracker")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.secondary.opacity(0.35))
+
+                Text("Coming soon")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.secondary.opacity(0.2))
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
-            .padding(.bottom, 32)
+
+            Spacer()
         }
-        .background(
-            ZStack {
-                Color(uiColor: .systemBackground)
-                LinearGradient(
-                    colors: [Color.primary.opacity(0.012), Color.green.opacity(0.014), Color.blue.opacity(0.012)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
-        )
-        .sheet(isPresented: $showLogSheet) {
-            AvoidedImpulseLogSheet(preset: selectedImpulse ?? ImpulsePreset.defaults[0]) { title, amount in
-                logSavedImpulse(title: title, amount: amount)
-            }
-        }
-        .navigationTitle("Finance")
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(uiColor: .systemBackground))
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var disciplineWealthCard: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("DISCIPLINE WEALTH")
-                        .font(.system(size: 10, weight: .black, design: .rounded))
-                        .foregroundColor(.green.opacity(0.85))
-                        .tracking(1.8)
-
-                    Text("Impulse money recovered into identity capital")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer()
-
-                Image(systemName: "shield.lefthalf.filled")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.green)
-                    .frame(width: 44, height: 44)
-                    .background(Circle().fill(Color.green.opacity(0.09)))
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(currencyPrecise(totalSaved))
-                    .font(.system(size: 46, weight: .black, design: .rounded))
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.65)
-
-                Text("Saved from impulses today")
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .foregroundColor(.secondary)
-            }
-
-            Button {
-                triggerHaptic()
-                selectedImpulse = ImpulsePreset.custom
-                showLogSheet = true
-            } label: {
-                HStack(spacing: 10) {
-                    Text("＋")
-                        .font(.system(size: 22, weight: .black, design: .rounded))
-                    Text("Log Avoided Impulse")
-                        .font(.system(size: 15, weight: .black, design: .rounded))
-                    Spacer()
-                    Image(systemName: "arrow.up.right")
-                        .font(.system(size: 13, weight: .black))
-                }
-                .foregroundColor(.white)
-                .padding(.horizontal, 16)
-                .frame(height: 54)
-                .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(LinearGradient(colors: [Color.green, Color.blue.opacity(0.88)], startPoint: .leading, endPoint: .trailing))
-                )
-                .shadow(color: Color.green.opacity(0.22), radius: 14, x: 0, y: 8)
-            }
-            .buttonStyle(.plain)
-
-            disciplineCurve
-        }
-        .padding(20)
-        .financeCard(cornerRadius: 28)
-    }
-
-    private var disciplineCurve: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Wealth Recovery Flow")
-                    .font(.system(size: 13, weight: .black, design: .rounded))
-                    .foregroundColor(.primary)
-                Spacer()
-                Text("0%")
-                    .font(.system(size: 12, weight: .black, design: .rounded))
-                    .foregroundColor(.secondary)
-            }
-
-            Chart(disciplinePoints) { point in
-                AreaMark(
-                    x: .value("Time", point.date),
-                    y: .value("Saved", point.value)
-                )
-                .interpolationMethod(.catmullRom)
-                .foregroundStyle(
-                    LinearGradient(colors: [Color.green.opacity(0.24), Color.blue.opacity(0.08), Color.clear], startPoint: .top, endPoint: .bottom)
-                )
-
-                LineMark(
-                    x: .value("Time", point.date),
-                    y: .value("Saved", point.value)
-                )
-                .interpolationMethod(.catmullRom)
-                .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
-                .foregroundStyle(LinearGradient(colors: [Color.green, Color.cyan], startPoint: .leading, endPoint: .trailing))
-                .shadow(color: Color.green.opacity(0.3), radius: 8)
-            }
-            .chartXAxis(.hidden)
-            .chartYAxis(.hidden)
-            .chartYScale(domain: 0...max(1, totalSaved))
-            .frame(height: 120)
-            .chartPlotStyle { plotArea in
-                plotArea
-                    .background(Color.primary.opacity(0.018))
-                    .cornerRadius(16)
-            }
-        }
-        .padding(14)
-        .background(Color.primary.opacity(0.025))
-        .cornerRadius(18)
-    }
-
-    private var quickWillpowerLog: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("QUICK WILLPOWER LOG")
-                    .font(.system(size: 11, weight: .black, design: .rounded))
-                    .foregroundColor(.green.opacity(0.85))
-                    .tracking(1.4)
-
-                Text("Tap a temptation you skipped and capture the saved money.")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.secondary)
-            }
-
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                ForEach(ImpulsePreset.defaults) { preset in
-                    ImpulseTile(preset: preset) {
-                        triggerHaptic()
-                        selectedImpulse = preset
-                        showLogSheet = true
-                    }
-                }
-            }
-        }
-    }
-
-    private var leaksControl: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("FINANCIAL LEAKS CONTROL")
-                .font(.system(size: 11, weight: .black, design: .rounded))
-                .foregroundColor(.red.opacity(0.78))
-                .tracking(1.4)
-
-            VStack(spacing: 10) {
-                LeakControlRow(
-                    icon: "drop.triangle.fill",
-                    title: "System Leaks",
-                    subtitle: "Impulse drains and recurring friction",
-                    value: currencyPrecise(0),
-                    color: .red
-                )
-
-                LeakControlRow(
-                    icon: "link.circle.fill",
-                    title: "Tethered Burdens",
-                    subtitle: "Obligations pulling attention backward",
-                    value: currencyPrecise(0),
-                    color: .orange
-                )
-            }
-        }
-        .padding(18)
-        .financeCard(cornerRadius: 24)
-    }
-
-    private var willpowerHistory: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text("HISTORY OF WILLPOWER")
-                    .font(.system(size: 11, weight: .black, design: .rounded))
-                    .foregroundColor(.blue.opacity(0.8))
-                    .tracking(1.4)
-                Spacer()
-                Text(currencyPrecise(totalSaved))
-                    .font(.system(size: 13, weight: .black, design: .rounded))
-                    .foregroundColor(.green)
-            }
-
-            if savedLogs.isEmpty {
-                HStack(spacing: 12) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.blue)
-                        .frame(width: 38, height: 38)
-                        .background(Circle().fill(Color.blue.opacity(0.08)))
-
-                    Text("Your discipline hasn't been tested yet today. Log your first saved expense above!")
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
-                        .foregroundColor(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Spacer()
-                }
-                .padding(14)
-                .background(Color.blue.opacity(0.035))
-                .cornerRadius(18)
-            } else {
-                VStack(spacing: 10) {
-                    ForEach(savedLogs.sorted(by: { $0.date > $1.date })) { log in
-                        WillpowerTimelineRow(log: log)
-                    }
-                }
-            }
-        }
-        .padding(18)
-        .financeCard(cornerRadius: 24)
-    }
-
-    private func logSavedImpulse(title: String, amount: Double) {
-        triggerHaptic()
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
-            savedLogs.insert(
-                WillpowerLog(title: title, amount: amount, date: Date()),
-                at: 0
-            )
-        }
-    }
-
-    private func currencyPrecise(_ value: Double) -> String {
-        String(format: "%.2f US$", value)
-    }
-
-    private func triggerHaptic() {
-        #if canImport(UIKit)
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        #endif
     }
 }
 

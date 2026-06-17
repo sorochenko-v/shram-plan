@@ -45,7 +45,7 @@ enum QuitTrackingMode: String, CaseIterable, Equatable {
     var accent: Color {
         switch self {
         case .financial: return .green
-        case .time: return .blue
+        case .time: return .scarlet
         case .pureWillpower: return .purple
         }
     }
@@ -167,11 +167,11 @@ struct HabitsView: View {
                     VStack(spacing: 12) {
                         ZStack {
                             Circle()
-                                .fill(Color.blue.opacity(0.04))
+                                .fill(Color.scarlet.opacity(0.04))
                                 .frame(width: 80, height: 80)
                             Image(systemName: "sparkles")
                                 .font(.system(size: 28, weight: .light))
-                                .foregroundColor(.blue.opacity(0.6))
+                                .foregroundColor(.scarlet.opacity(0.6))
                         }
 
                         Text("Your Dashboard is Clean")
@@ -198,7 +198,7 @@ struct HabitsView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         SectionHeader(title: "SUGGESTED ROUTINES")
                         ForEach(suggestedHabits) { habit in
-                            SuggestionButton(title: habit.name, icon: habit.icon, color: .blue) {
+                            SuggestionButton(title: habit.name, icon: habit.icon, color: .scarlet) {
                                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                     activeHabits.append(habit)
                                 }
@@ -264,7 +264,7 @@ struct HabitsView: View {
                                 } label: {
                                     Label("Edit", systemImage: "pencil")
                                 }
-                                .tint(.blue)
+                                .tint(.scarlet)
                             }
                         }
                         .listRowSeparator(.hidden)
@@ -305,7 +305,7 @@ struct HabitsView: View {
                                 } label: {
                                     Label("Edit", systemImage: "pencil")
                                 }
-                                .tint(.blue)
+                                .tint(.scarlet)
                             }
                         }
                         .listRowSeparator(.hidden)
@@ -331,7 +331,7 @@ struct HabitsView: View {
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.blue)
+                        .foregroundColor(.scarlet)
                 }
                 .buttonStyle(.plain)
             }
@@ -435,9 +435,9 @@ struct HabitCard: View {
             HStack(spacing: 14) {
                 ZStack {
                     Circle()
-                        .fill(Color.blue.opacity(0.06))
+                        .fill(Color.scarlet.opacity(0.06))
                         .frame(width: 42, height: 42)
-                    HabitIconView(icon: habit.icon, color: .blue)
+                    HabitIconView(icon: habit.icon, color: .scarlet)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -478,11 +478,11 @@ struct HabitCard: View {
                         Capsule()
                             .fill(
                                 habit.weeklyCompletion[dayIndex] ?
-                                LinearGradient(colors: [Color.blue, Color.blue.opacity(0.75)], startPoint: .top, endPoint: .bottom) :
+                                LinearGradient(colors: [Color.scarlet, Color.scarlet.opacity(0.75)], startPoint: .top, endPoint: .bottom) :
                                 LinearGradient(colors: [Color.primary.opacity(0.04)], startPoint: .top, endPoint: .bottom)
                             )
                             .frame(height: 14)
-                            .shadow(color: habit.weeklyCompletion[dayIndex] ? Color.blue.opacity(0.25) : Color.clear, radius: 4, y: 2)
+                            .shadow(color: habit.weeklyCompletion[dayIndex] ? Color.scarlet.opacity(0.25) : Color.clear, radius: 4, y: 2)
 
                         Text(daysLetters[dayIndex])
                             .font(.system(size: 9, weight: .bold, design: .rounded))
@@ -875,7 +875,7 @@ struct AddHabitLuxuryView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: "sun.max.fill")
                                             .font(.system(size: 15, weight: .semibold))
-                                            .foregroundColor(!isQuit ? .blue : .secondary)
+                                            .foregroundColor(!isQuit ? .scarlet : .secondary)
                                         
                                         Text("Building a Good Habit")
                                             .font(.system(.subheadline, design: .rounded).weight(.semibold))
@@ -885,11 +885,11 @@ struct AddHabitLuxuryView: View {
                                     .frame(height: 48)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(!isQuit ? Color.blue.opacity(0.08) : Color.primary.opacity(0.02))
+                                            .fill(!isQuit ? Color.scarlet.opacity(0.08) : Color.primary.opacity(0.02))
                                     )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(!isQuit ? Color.blue.opacity(0.2) : Color.primary.opacity(0.04), lineWidth: 1)
+                                            .stroke(!isQuit ? Color.scarlet.opacity(0.2) : Color.primary.opacity(0.04), lineWidth: 1)
                                     )
                                 }
                                 .buttonStyle(.plain)
@@ -1083,7 +1083,7 @@ struct AddHabitLuxuryView: View {
     }
 
     private var primaryAccent: Color {
-        isQuit ? selectedTrackingMode.accent : .blue
+        isQuit ? selectedTrackingMode.accent : .scarlet
     }
 
     private var selectedImpactValue: Double {
@@ -1227,7 +1227,7 @@ struct QuitConfigurationPanel: View {
                     unit: $selectedTimeUnit,
                     value: $timeImpactValue,
                     text: $timeImpactText,
-                    color: .blue
+                    color: .scarlet
                 )
             case .pureWillpower:
                 HStack(spacing: 12) {

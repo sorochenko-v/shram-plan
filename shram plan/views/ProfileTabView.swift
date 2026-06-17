@@ -28,7 +28,7 @@ struct ProfileTabView: View {
                         } label: {
                             Text("Change Avatar")
                                 .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                .foregroundColor(.blue)
+                                .foregroundColor(.scarlet)
                         }
                         .buttonStyle(.plain)
                         Spacer(minLength: 4)
@@ -87,7 +87,7 @@ struct ProfileTabView: View {
                             } label: {
                                 Text("Save Changes")
                                     .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.scarlet)
                                     .frame(maxWidth: .infinity)
                             }
                             .buttonStyle(.plain)
@@ -111,7 +111,7 @@ struct ProfileTabView: View {
                             } label: {
                                 Text("Edit Profile Details")
                                     .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.scarlet)
                                     .frame(maxWidth: .infinity, alignment: .center)
                             }
                             .buttonStyle(.plain)
@@ -143,7 +143,7 @@ struct ProfileTabView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 6)
-                                .background(isProUser ? Color.secondary : Color.blue)
+                                .background(isProUser ? Color.secondary : Color.scarlet)
                                 .cornerRadius(12)
                         }
                         .buttonStyle(.plain)
@@ -153,7 +153,7 @@ struct ProfileTabView: View {
                 Section("About") {
                     HStack(spacing: 12) {
                         Image(systemName: "info.circle.fill")
-                            .foregroundColor(.blue)
+                            .foregroundColor(.scarlet)
                             .font(.system(size: 18))
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Shram Plan")
@@ -214,9 +214,9 @@ struct AvatarView: View {
                 } else {
                     Image(systemName: iconName)
                         .font(.system(size: size * 0.5))
-                        .foregroundColor(.blue)
+                        .foregroundColor(.scarlet)
                         .frame(width: size, height: size)
-                        .background(Circle().fill(Color.blue.opacity(0.1)))
+                        .background(Circle().fill(Color.scarlet.opacity(0.1)))
                 }
                 #else
                 if let uiImage = UIImage(data: customData) {
@@ -228,17 +228,17 @@ struct AvatarView: View {
                 } else {
                     Image(systemName: iconName)
                         .font(.system(size: size * 0.5))
-                        .foregroundColor(.blue)
+                        .foregroundColor(.scarlet)
                         .frame(width: size, height: size)
-                        .background(Circle().fill(Color.blue.opacity(0.1)))
+                        .background(Circle().fill(Color.scarlet.opacity(0.1)))
                 }
                 #endif
             } else {
                 Image(systemName: iconName)
                     .font(.system(size: size * 0.5))
-                    .foregroundColor(.blue)
+                    .foregroundColor(.scarlet)
                     .frame(width: size, height: size)
-                    .background(Circle().fill(Color.blue.opacity(0.1)))
+                    .background(Circle().fill(Color.scarlet.opacity(0.1)))
             }
         }
     }
@@ -266,9 +266,9 @@ struct ImagePicker: View {
                             } label: {
                                 Image(systemName: icon)
                                     .font(.system(size: 30))
-                                    .foregroundColor(selectedIcon == icon ? .white : .blue)
+                                    .foregroundColor(selectedIcon == icon ? .white : .scarlet)
                                     .frame(width: 70, height: 70)
-                                    .background(selectedIcon == icon ? Color.blue : Color.blue.opacity(0.1))
+                                    .background(selectedIcon == icon ? Color.scarlet : Color.scarlet.opacity(0.1))
                                     .clipShape(Circle())
                             }
                         }

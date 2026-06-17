@@ -1,5 +1,9 @@
 import SwiftUI
 
+extension Color {
+    static let scarlet = Color(red: 0.65, green: 0.08, blue: 0.14)
+}
+
 struct ContentView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @AppStorage("showPostLoginPaywall") var showPostLoginPaywall: Bool = false
@@ -79,7 +83,7 @@ struct MainTabView: View {
                 }
                 .tag(3)
         }
-        .tint(.blue)
+        .tint(.scarlet)
     }
 }
 

@@ -23,7 +23,7 @@ struct LoginView: View {
                         Circle()
                             .fill(
                                 LinearGradient(
-                                    colors: [Color.blue.opacity(0.12), Color.blue.opacity(0.01)],
+                                    colors: [Color.scarlet.opacity(0.12), Color.scarlet.opacity(0.01)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -31,14 +31,14 @@ struct LoginView: View {
                             .frame(width: 100, height: 100)
 
                         Circle()
-                            .stroke(Color.blue.opacity(0.08), lineWidth: 1)
+                            .stroke(Color.scarlet.opacity(0.08), lineWidth: 1)
                             .frame(width: 100, height: 100)
 
                         Image(systemName: "bandage.fill")
                             .font(.system(size: 38, weight: .regular))
                             .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(.blue)
-                            .shadow(color: Color.blue.opacity(0.2), radius: 8, x: 0, y: 4)
+                            .foregroundColor(.scarlet)
+                            .shadow(color: Color.scarlet.opacity(0.2), radius: 8, x: 0, y: 4)
                     }
 
                     VStack(spacing: 8) {
@@ -48,7 +48,7 @@ struct LoginView: View {
                                 .foregroundColor(.primary)
                             Text("Plan")
                                 .font(.system(size: 32, weight: .light, design: .rounded))
-                                .foregroundColor(.blue)
+                                .foregroundColor(.scarlet)
                         }
 
                         Text(isSignUpMode ? "Start your journey to healing and growth." : "Your personal growth dashboard is waiting.")
@@ -63,7 +63,7 @@ struct LoginView: View {
                     if isSignUpMode {
                         HStack(spacing: 12) {
                             Image(systemName: "person")
-                                .foregroundColor(.blue.opacity(0.6))
+                                .foregroundColor(.scarlet.opacity(0.6))
                                 .font(.system(size: 16, weight: .semibold))
                                 .frame(width: 20)
 
@@ -82,7 +82,7 @@ struct LoginView: View {
 
                     HStack(spacing: 12) {
                         Image(systemName: "envelope")
-                            .foregroundColor(.blue.opacity(0.6))
+                            .foregroundColor(.scarlet.opacity(0.6))
                             .font(.system(size: 15, weight: .semibold))
                             .frame(width: 20)
 
@@ -100,7 +100,7 @@ struct LoginView: View {
 
                     HStack(spacing: 12) {
                         Image(systemName: "lock")
-                            .foregroundColor(.blue.opacity(0.6))
+                            .foregroundColor(.scarlet.opacity(0.6))
                             .font(.system(size: 16, weight: .semibold))
                             .frame(width: 20)
 
@@ -132,13 +132,13 @@ struct LoginView: View {
                             .frame(height: 52)
                             .background(
                                 LinearGradient(
-                                    colors: [Color.blue, Color.blue.opacity(0.85)],
+                                    colors: [Color.scarlet, Color.scarlet.opacity(0.85)],
                                     startPoint: .top,
                                     endPoint: .bottom
                                 )
                             )
                             .cornerRadius(16)
-                            .shadow(color: Color.blue.opacity(0.25), radius: 12, x: 0, y: 6)
+                            .shadow(color: Color.scarlet.opacity(0.25), radius: 12, x: 0, y: 6)
                     }
                     .buttonStyle(.plain)
 
@@ -152,7 +152,7 @@ struct LoginView: View {
                                 .foregroundColor(.secondary)
                             Text(isSignUpMode ? "Log In" : "Sign Up")
                                 .fontWeight(.bold)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.scarlet)
                         }
                         .font(.system(size: 13, weight: .medium))
                     }

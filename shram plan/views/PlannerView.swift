@@ -35,7 +35,7 @@ enum PlannerTaskPriority: String, Codable, CaseIterable {
     var color: Color {
         switch self {
         case .low: return .green
-        case .medium: return .blue
+        case .medium: return .scarlet
         case .high: return .red
         }
     }
@@ -187,9 +187,9 @@ struct PlannerView: View {
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(Color.blue)
+            .background(Color.scarlet)
             .cornerRadius(16)
-            .shadow(color: Color.blue.opacity(0.25), radius: 10, x: 0, y: 5)
+            .shadow(color: Color.scarlet.opacity(0.25), radius: 10, x: 0, y: 5)
         }
         .buttonStyle(.plain)
     }
@@ -257,14 +257,14 @@ struct WeeklyCalendarStrip: View {
                             .font(.system(size: 18, weight: .black, design: .rounded))
                             .foregroundColor(isSelected ? .white : .primary)
                         Circle()
-                            .fill(taskCount(for: date) > 0 ? (isSelected ? Color.white : Color.blue) : Color.clear)
+                            .fill(taskCount(for: date) > 0 ? (isSelected ? Color.white : Color.scarlet) : Color.clear)
                             .frame(width: 5, height: 5)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 78)
                     .background(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(isSelected ? Color.blue : Color.primary.opacity(0.03))
+                            .fill(isSelected ? Color.scarlet : Color.primary.opacity(0.03))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
@@ -307,14 +307,14 @@ struct MonthDayCell: View {
                     .font(.system(size: 12, weight: .black, design: .rounded))
                     .foregroundColor(isSelected ? .white : isCurrentMonth ? .primary : .secondary.opacity(0.45))
                 Circle()
-                    .fill(tasks.isEmpty ? Color.clear : Color.blue)
+                    .fill(tasks.isEmpty ? Color.clear : Color.scarlet)
                     .frame(width: 5, height: 5)
             }
             .frame(height: 44)
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    .fill(isSelected ? Color.blue : Color.primary.opacity(0.025))
+                    .fill(isSelected ? Color.scarlet : Color.primary.opacity(0.025))
             )
         }
         .buttonStyle(.plain)
@@ -337,9 +337,9 @@ struct EmptyPlannerCard: View {
         VStack(spacing: 12) {
             Image(systemName: "sparkles")
                 .font(.system(size: 20, weight: .bold))
-                .foregroundColor(.blue.opacity(0.62))
+                .foregroundColor(.scarlet.opacity(0.62))
                 .frame(width: 44, height: 44)
-                .background(Circle().fill(Color.blue.opacity(0.06)))
+                .background(Circle().fill(Color.scarlet.opacity(0.06)))
             Text(text)
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundColor(.secondary.opacity(0.78))
@@ -461,7 +461,7 @@ struct AddFlexibleTaskView: View {
                                     HStack(spacing: 8) {
                                         Image(systemName: type.icon)
                                             .font(.system(size: 15, weight: .semibold))
-                                            .foregroundColor(taskType == type ? .blue : .secondary)
+                                            .foregroundColor(taskType == type ? .scarlet : .secondary)
                                         
                                         Text(type.title)
                                             .font(.system(.subheadline, design: .rounded).weight(.semibold))
@@ -471,11 +471,11 @@ struct AddFlexibleTaskView: View {
                                     .frame(height: 48)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(taskType == type ? Color.blue.opacity(0.08) : Color.primary.opacity(0.02))
+                                            .fill(taskType == type ? Color.scarlet.opacity(0.08) : Color.primary.opacity(0.02))
                                     )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(taskType == type ? Color.blue.opacity(0.2) : Color.primary.opacity(0.04), lineWidth: 1)
+                                            .stroke(taskType == type ? Color.scarlet.opacity(0.2) : Color.primary.opacity(0.04), lineWidth: 1)
                                     )
                                 }
                                 .buttonStyle(.plain)
@@ -561,9 +561,9 @@ struct AddFlexibleTaskView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
-                        .background(Color.blue)
+                        .background(Color.scarlet)
                         .cornerRadius(16)
-                        .shadow(color: Color.blue.opacity(0.25), radius: 10, x: 0, y: 5)
+                        .shadow(color: Color.scarlet.opacity(0.25), radius: 10, x: 0, y: 5)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 12)
                 }
@@ -654,7 +654,7 @@ extension View {
                 Button(action: edit) {
                     Image(systemName: "pencil")
                 }
-                .tint(.blue)
+                .tint(.scarlet)
             }
     }
 }
